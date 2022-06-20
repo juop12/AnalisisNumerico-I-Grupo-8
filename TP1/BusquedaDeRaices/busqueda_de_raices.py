@@ -1,6 +1,7 @@
 from math import sin, cos
 from pkgutil import ImpImporter
 
+
 def función1(x):
     return ((x*x) / 4) - sin(x)
 
@@ -28,6 +29,32 @@ def imprimir_tabla_de_raices(nombre_del_método, posibles_raices):
     for iteración in zip(numeros_de_iteracion, posibles_raices_strings):
         línea = "|".join(elemento.center(ancho + 2) for elemento in iteración)
         print(línea)
+
+def metodo_de_bisección(semilla_1, semilla_2, función, cota_de_error):
+    posibles_raices = [] 
+    posibles_raices.append(semilla_1)
+    posibles_raices.append(semilla_2)
+    p_0 = semilla_1
+    p_1 = semilla_2
+
+    p_2 = (p_0 + p_1) / 2 #Tenemos el medio
+
+    
+
+    v_0 = función(p_0) 
+    v_1 = función(p_1)
+    v_2 = función(p_2)
+
+    while(abs(p_2 - p_1) >= cota_de_error): 
+        if((v_0 > 0 and v_2 > 0) or (v_0 < 0 and v_2 < 0) ):
+            p_0 = p_2
+    
+        else:
+            p_1 = p_2
+            
+        posibles_raices.append(p_2)
+        p_2 = (p_0 + p_1) / 2
+
 
 
 def metodo_de_la_secante(semilla_1 , semilla_2, función, cota_de_error):
@@ -85,6 +112,7 @@ def metodo_de_Newton_Raphson_modificado(semilla, función, función_derivada, fu
         posibles_raices.append(p_1)
 
     return p_1, posibles_raices
+
 
 
 
