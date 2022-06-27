@@ -7,13 +7,14 @@ import tabulate as tab
 # Funciones de las que haremos uso
 
 def funcionProduccion(x):
-    return (0.001 * x * ((x-1000)**2)) - 25000
+    #return (0.001 * x * ((x-1000)**2)) - 25000  
+    return 0.001 * (x**3) - 2 * (x**2) + 1000 * x - 25000  
 
 def funcionProduccionDerivada(x):
-    return ((0.001 / 3) * (x ** 2)) - x + 1000
+    return 0.003 * (x**2) - 4 * x + 1000
 
 def funcionProduccionDerivadaSegunda(x):
-    return (0.001 / 6) * x - 1
+    return 0.006 * x - 4
 
 def funcionProduccionPuntoFijo(x):
     return 25 - 0.000001 * (x ** 3) + 0.002 * (x ** 2)
@@ -134,14 +135,13 @@ def calcularOrdenDeConvergencia(iteraciones):
                 alfa = logNumerador/logDenominador
                 ordenDeConvergencia.append(alfa)
             else:
-                print("Errores muy chicos")
                 ordenDeConvergencia.append(ordenDeConvergencia[-1])
                 
     return ordenDeConvergencia
 
 def calcularConstanteAsintotica(iteraciones, alfa):
     constantesAsintoticas = []
-    tolerancia = 10**-16
+    tolerancia = 10**-12
     constante = 0
     for indice in range(len(iteraciones)):
         if indice < 2:
@@ -150,7 +150,7 @@ def calcularConstanteAsintotica(iteraciones, alfa):
         else:
             errorParActual   = abs(iteraciones[indice]     - iteraciones[indice - 1])
             errorParAnterior = abs(iteraciones[indice - 1] - iteraciones[indice - 2])
-            if errorParActual > tolerancia and errorParAnterior > tolerancia:
+            if errorParActual > tolerancia and (errorParAnterior ** alfa) > tolerancia:
                 constante = errorParActual / (errorParAnterior**alfa)
             constantesAsintoticas.append(constante)
 
@@ -160,7 +160,7 @@ def calcularConstanteAsintotica(iteraciones, alfa):
 # Función para imprimir los resultados
 
 def imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia):
-    plt.plot(ordenDeConvergencia)
+    plt.plot(range(1, len(ordenDeConvergencia) + 1), ordenDeConvergencia)
     plt.grid(True)
     plt.title("Orden de Convergencia " + nombreMetodo + " con tolerancia " + str(tolerancia))
     plt.xlabel('Iteración')
@@ -201,31 +201,47 @@ def mostrarIteraciones(nombreMetodo, iteraciones, ordenDeConvergencia, constante
     print("\n\n" + nombreMetodo)
     print("Tolerancia: ", tolerancia)
     print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
-    imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
-    imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
+    #imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
+    #imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
 
 #-------------------------------------------------------------------------------------------
 # Main
 
 def main():
-    tolerancia = {1e-5, 1e-13}
+    tolerancia = [1e-5, 1e-13]
     maxIteraciones = 100
 
     for t in tolerancia:
-        iteraciones = metodoDeBiseccion(funcionProduccion, 827, 1800, t, maxIteraciones)
-        mostrarIteraciones("Método Bisección", iteraciones, calcularOrdenDeConvergencia(iteraciones), calcularConstanteAsintotica(iteraciones, 1), t)
+        iteracionesBiseccion = metodoDeBiseccion(funcionProduccion, 827, 1800, t, maxIteraciones)
+        convergenciaBiseccion = calcularOrdenDeConvergencia(iteracionesBiseccion)
+        constanteAsintoticaBiseccion = calcularConstanteAsintotica(iteracionesBiseccion, convergenciaBiseccion[-1])
 
-        iteraciones = metodoDePuntoFijo(funcionProduccionPuntoFijo, 1000, t, maxIteraciones)
-        mostrarIteraciones("Método Punto Fijo", iteraciones, calcularOrdenDeConvergencia(iteraciones), calcularConstanteAsintotica(iteraciones, 1), t)
+        mostrarIteraciones("Método Bisección", iteracionesBiseccion, convergenciaBiseccion, constanteAsintoticaBiseccion, t)
 
-        iteraciones = metodoDeNewtonRaphson(funcionProduccion, funcionProduccionDerivada, 1000, t, maxIteraciones)
-        mostrarIteraciones("Método Newton-Rapshon", iteraciones, calcularOrdenDeConvergencia(iteraciones), calcularConstanteAsintotica(iteraciones, 1), t)
+        iteracionesPuntoFijo = metodoDePuntoFijo(funcionProduccionPuntoFijo, 1000, t, maxIteraciones)
+        convergenciaPuntoFijo = calcularOrdenDeConvergencia(iteracionesPuntoFijo)
+        constanteAsintoticaPuntoFijo = calcularConstanteAsintotica(iteracionesPuntoFijo, convergenciaPuntoFijo[-1])
 
-        iteraciones = metodoDeNewtonRaphsonModificado(funcionProduccion, funcionProduccionDerivada, funcionProduccionDerivadaSegunda, 1000, t, maxIteraciones)
-        mostrarIteraciones("Método Newton-Raphson Modificado", iteraciones, calcularOrdenDeConvergencia(iteraciones), calcularConstanteAsintotica(iteraciones, 1), t)
+        mostrarIteraciones("Método Punto Fijo", iteracionesPuntoFijo, convergenciaPuntoFijo, constanteAsintoticaPuntoFijo, t)
 
-        iteraciones = metodoDeLaSecante(funcionProduccion, 1000, 1800, t, maxIteraciones)
-        mostrarIteraciones("Método de la Secante", iteraciones, calcularOrdenDeConvergencia(iteraciones), calcularConstanteAsintotica(iteraciones, 1), t)
+        iteracionesNewtonRaphson = metodoDeNewtonRaphson(funcionProduccion, funcionProduccionDerivada, 1100, t, maxIteraciones)
+        convergenciaNewtonRaphson = calcularOrdenDeConvergencia(iteracionesNewtonRaphson)
+        constanteAsintoticaNewtonRaphson = calcularConstanteAsintotica(iteracionesNewtonRaphson, convergenciaNewtonRaphson[-1])
+        
+        mostrarIteraciones("Método Newton-Rapshon", iteracionesNewtonRaphson, convergenciaNewtonRaphson, constanteAsintoticaNewtonRaphson, t)
+
+        iteracionesNewtonRaphsonModificado = metodoDeNewtonRaphsonModificado(funcionProduccion, funcionProduccionDerivada, funcionProduccionDerivadaSegunda, 1050, t, maxIteraciones)
+        convergenciaNewtonRaphsonModificado = calcularOrdenDeConvergencia(iteracionesNewtonRaphsonModificado)
+        constanteAsintoticaNewtonRaphsonModificado = calcularConstanteAsintotica(iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado
+        [-1])
+
+        mostrarIteraciones("Método Newton-Raphson Modificado", iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado, constanteAsintoticaNewtonRaphsonModificado, t)
+
+        iteracionesSecante = metodoDeLaSecante(funcionProduccion, 1000, 1800, t, maxIteraciones)
+        convergenciaSecante = calcularOrdenDeConvergencia(iteracionesSecante)
+        constanteAsintoticaSecante = calcularConstanteAsintotica(iteracionesSecante, convergenciaSecante[-1])
+
+        mostrarIteraciones("Método de la Secante", iteracionesSecante, convergenciaSecante, constanteAsintoticaSecante, t)
 
 
 main()
