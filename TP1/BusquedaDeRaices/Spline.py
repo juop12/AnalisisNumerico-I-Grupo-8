@@ -1,39 +1,48 @@
 import numpy
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
-def spline(x, y):
+def spline(x, a, pendienteInicial, pendienteFinal):
     cantNodos = len(x)
     h = []
+
     for n in range(cantNodos - 1):
         h.append(x[n+1] - x[n])
 
     print(h)
     print("\n")
+
     # Armo matriz A
-    A = [[0 for _ in range(cantNodos + 1)] for _ in range(cantNodos + 1)]
+    A = [[0 for _ in range(cantNodos)] for _ in range(cantNodos)]
 
-    A[0][0] = 1
-    for i in range(1, cantNodos):
-        A[i][i-1] = h[i-2]
-        A[i][i] = 2*(h[i-2] + h[i-1])
-        A[i][i+1] = h[i-1]
-    A[cantNodos][cantNodos] = 1
+    A[0][0] = 2 * h[0]
+    A[0][1] = h[0]
 
-    a = y
+    for i in range(1, cantNodos - 1):
+        A[i][i-1] = h[i-1]
+        A[i][i] = 2*(h[i-1] + h[i])
+        A[i][i+1] = h[i]
+
+    A[cantNodos-1][cantNodos-2] = h[cantNodos-2]
+    A[cantNodos-1][cantNodos-1] = 2 * h[cantNodos-2]
 
     # Armo matriz B (A*x=B)
-    B = [0]
-    for n in range(1, cantNodos):
-        B.append(3/h[n-1] * (a[n] - a[n - 1]) - 3/h[n-2] * (a[n-1] - a[n-2]))
-    B += [0]
+    
+    B = [3/h[0] * (a[1] - a[0]) - 3 * pendienteInicial]
+    
+    for n in range(2, cantNodos):
+        B.append(3/h[n-1] * (a[n] - a[n-1]) - 3/h[n-2] * (a[n-1] - a[n-2]))
+    
+    B.append(3 * pendienteFinal - 3/h[cantNodos-2] * (a[cantNodos-1] - a[cantNodos-2]))
 
-    for x in range(cantNodos + 1):
+    # Grafico de A y B.
+    for x in range(cantNodos):
         print(A[x])
 
     print("\n" + str(B))
 
-    # Resuelvo ecuación
+    # Resuelvo ecuación // Tambien se puede hacer con LU
     c = np.linalg.solve(A, B)
     print("\n")
     print(c)
@@ -45,11 +54,13 @@ def spline(x, y):
 
     d = []
     for j in range(cantNodos - 1):
-        d.append(1/3 * h[j] * (c[j+1] - c[j]))
+        d.append(1/(3 * h[j]) * (c[j+1] - c[j]))
 
+    print(b)
+    print(d)
     return a, b, c, d
 
-def obtenerValorSpline(a, b, c, d, x0, x):
+def obtenerValorSpline(a, b, c, d, x, x0):
     return a + b*(x-x0) + c*((x-x0)**2) + d*((x-x0)**3)
 
 def obtenerPuntosCurvaSpline(a, b, c, d, x):
@@ -57,6 +68,7 @@ def obtenerPuntosCurvaSpline(a, b, c, d, x):
     puntosEvaluados = []
     for i in range(len(x) - 1):
         puntosAEvaluar = np.linspace(x[i], x[i+1], 20)
+        print(puntosAEvaluar)
         resultadoActual = obtenerValorSpline(a[i], b[i], c[i], d[i], puntosAEvaluar, x[i])
         resultado = numpy.append(resultado, resultadoActual)
         puntosEvaluados = numpy.append(puntosEvaluados, puntosAEvaluar)
@@ -78,11 +90,11 @@ def main():
     #derivadaExtremosCurva2 = [3, -4]
     #derivadaExtremosCurva3 = [1 / 3, -3 / 2]
     print("Curva 1")
-    a1, b1, c1, d1 = spline(x1, y1)
+    a1, b1, c1, d1 = spline(x1, y1, 1, -2/3)
     print("Curva 2")
-    a2, b2, c2, d2 = spline(x2, y2)
+    a2, b2, c2, d2 = spline(x2, y2, 3, -4)
     print("Curva 3")
-    a3, b3, c3, d3 = spline(x3, y3)
+    a3, b3, c3, d3 = spline(x3, y3, 1/3, -3/2)
 
     puntosCurva1, resultado1 = obtenerPuntosCurvaSpline(a1, b1, c1, d1, x1)
     puntosCurva2, resultado2 = obtenerPuntosCurvaSpline(a2, b2, c2, d2, x2)
@@ -100,3 +112,20 @@ def main():
 
 
 main()
+def extra():
+    euler = math.e
+    x = [0, 1, 2, 3]
+    y = [1, euler, euler**2, euler**3]
+
+    print("Curva de prueba")
+    a1, b1, c1, d1 = spline(x, y, 1, euler**3)
+
+    puntosCurva, resultado = obtenerPuntosCurvaSpline(a1, b1, c1, d1, x)
+
+    plt.plot(puntosCurva, resultado, 'k', lw=1)
+    plt.grid(True)
+    plt.scatter(x, y, color='red')
+
+    plt.show()
+
+#extra()

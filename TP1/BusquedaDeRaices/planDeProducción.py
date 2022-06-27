@@ -212,11 +212,13 @@ def main():
     maxIteraciones = 100
 
     for t in tolerancia:
+        
         iteracionesBiseccion = metodoDeBiseccion(funcionProduccion, 827, 1800, t, maxIteraciones)
         convergenciaBiseccion = calcularOrdenDeConvergencia(iteracionesBiseccion)
         constanteAsintoticaBiseccion = calcularConstanteAsintotica(iteracionesBiseccion, convergenciaBiseccion[-1])
 
         mostrarIteraciones("Método Bisección", iteracionesBiseccion, convergenciaBiseccion, constanteAsintoticaBiseccion, t)
+
 
         iteracionesPuntoFijo = metodoDePuntoFijo(funcionProduccionPuntoFijo, 1000, t, maxIteraciones)
         convergenciaPuntoFijo = calcularOrdenDeConvergencia(iteracionesPuntoFijo)
@@ -224,11 +226,13 @@ def main():
 
         mostrarIteraciones("Método Punto Fijo", iteracionesPuntoFijo, convergenciaPuntoFijo, constanteAsintoticaPuntoFijo, t)
 
+
         iteracionesNewtonRaphson = metodoDeNewtonRaphson(funcionProduccion, funcionProduccionDerivada, 1100, t, maxIteraciones)
         convergenciaNewtonRaphson = calcularOrdenDeConvergencia(iteracionesNewtonRaphson)
         constanteAsintoticaNewtonRaphson = calcularConstanteAsintotica(iteracionesNewtonRaphson, convergenciaNewtonRaphson[-1])
         
         mostrarIteraciones("Método Newton-Rapshon", iteracionesNewtonRaphson, convergenciaNewtonRaphson, constanteAsintoticaNewtonRaphson, t)
+
 
         iteracionesNewtonRaphsonModificado = metodoDeNewtonRaphsonModificado(funcionProduccion, funcionProduccionDerivada, funcionProduccionDerivadaSegunda, 1050, t, maxIteraciones)
         convergenciaNewtonRaphsonModificado = calcularOrdenDeConvergencia(iteracionesNewtonRaphsonModificado)
@@ -236,6 +240,7 @@ def main():
         [-1])
 
         mostrarIteraciones("Método Newton-Raphson Modificado", iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado, constanteAsintoticaNewtonRaphsonModificado, t)
+
 
         iteracionesSecante = metodoDeLaSecante(funcionProduccion, 1000, 1800, t, maxIteraciones)
         convergenciaSecante = calcularOrdenDeConvergencia(iteracionesSecante)
