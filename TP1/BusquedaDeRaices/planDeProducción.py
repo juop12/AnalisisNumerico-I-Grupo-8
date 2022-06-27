@@ -160,6 +160,7 @@ def calcularConstanteAsintotica(iteraciones, alfa):
 # Función para imprimir los resultados
 
 def imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia):
+    plt.xscale("log")
     plt.plot(range(1, len(ordenDeConvergencia) + 1), ordenDeConvergencia)
     plt.grid(True)
     plt.title("Orden de Convergencia " + nombreMetodo + " con tolerancia " + str(tolerancia))
@@ -169,6 +170,7 @@ def imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia):
     plt.show()
 
 def imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica):
+    plt.xscale("log")
     plt.plot(constanteAsintotica)
     plt.grid(True)
     plt.title("Constante Asintótica " + nombreMetodo + " con tolerancia " + str(tolerancia))
@@ -201,8 +203,8 @@ def mostrarIteraciones(nombreMetodo, iteraciones, ordenDeConvergencia, constante
     print("\n\n" + nombreMetodo)
     print("Tolerancia: ", tolerancia)
     print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
-    #imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
-    #imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
+    imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
+    imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
 
 #-------------------------------------------------------------------------------------------
 # Main
