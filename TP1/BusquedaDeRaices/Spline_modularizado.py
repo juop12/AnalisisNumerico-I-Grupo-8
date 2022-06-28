@@ -1,6 +1,7 @@
 import numpy
 import numpy as np
 import matplotlib.pyplot as plt
+import tabulate as tab
 import math
 
 def calcularMatrizA(h, cantidadDeNodos):
@@ -52,6 +53,7 @@ def spline(x, a, pendienteInicial, pendienteFinal):
         print(A[x])
 
     print("\n" + str(B))
+    print("\n")
 
     # Resuelvo ecuación // Tambien se puede hacer con LU
     c = np.linalg.solve(A, B)
@@ -67,7 +69,7 @@ def obtenerValorSpline(a, b, c, d, x, x0):
 def obtenerPuntosCurvaSpline(a, b, c, d, x):
     resultado = []
     puntosEvaluados = []
-    for i in range(len(x) - 1):
+    for i in range(len(x)-1):
         puntosAEvaluar = np.linspace(x[i], x[i+1], 20)
         resultadoActual = obtenerValorSpline(a[i], b[i], c[i], d[i], puntosAEvaluar, x[i])
         resultado = numpy.append(resultado, resultadoActual)
@@ -75,6 +77,14 @@ def obtenerPuntosCurvaSpline(a, b, c, d, x):
 
     return puntosEvaluados, resultado
 
+def mostrarFuncionSpline(a, b, c, d, cantidadDeNodos):
+    datos = []
+    titulos = ['S', 'a', 'b', 'c', 'd ']
+
+    for i in range(cantidadDeNodos-1):
+        datos.append(('S_'+str(i), a[i], b[i], c[i], d[i]))
+
+    print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
 
 def main():
     x1 = [1  ,   2,   5,   6,   7,   8,  10,  13,  17]
@@ -88,10 +98,24 @@ def main():
 
     print("Curva 1")
     a1, b1, c1, d1 = spline(x1, y1, 1, -2/3)
+    mostrarFuncionSpline(a1, b1, c1, d1, len(x1))
+    print("\n")
+    print("="*100)
+    print("\n")
+
     print("Curva 2")
     a2, b2, c2, d2 = spline(x2, y2, 3, -4)
+    mostrarFuncionSpline(a2, b2, c2, d2, len(x2))
+    print("\n")
+    print("="*100)
+    print("\n")
+    
     print("Curva 3")
     a3, b3, c3, d3 = spline(x3, y3, 1/3, -3/2)
+    mostrarFuncionSpline(a3, b3, c3, d3, len(x3))
+    print("\n")
+    print("="*100)
+    print("\n")
 
     puntosCurva1, resultado1 = obtenerPuntosCurvaSpline(a1, b1, c1, d1, x1)
     puntosCurva2, resultado2 = obtenerPuntosCurvaSpline(a2, b2, c2, d2, x2)
@@ -108,7 +132,7 @@ def main():
     plt.show()
 
 
-#main()
+main()
 
 def extra():
     euler = math.e
