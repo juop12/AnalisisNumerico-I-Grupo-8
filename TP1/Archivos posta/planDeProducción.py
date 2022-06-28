@@ -1,13 +1,16 @@
-#import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 import math as m
 import tabulate as tab
 
+
 #----------------------------------------------------------------------------------------------------
 # Funciones de las que haremos uso
 
-def funcionProduccion(x):
-    #return (0.001 * x * ((x-1000)**2)) - 25000  
+def funcionOriginal(x):
+    return 0.001 * (x**3) - 2 * (x**2) + 1000 * x 
+
+def funcionProduccion(x): 
     return 0.001 * (x**3) - 2 * (x**2) + 1000 * x - 25000  
 
 def funcionProduccionDerivada(x):
@@ -18,6 +21,7 @@ def funcionProduccionDerivadaSegunda(x):
 
 def funcionProduccionPuntoFijo(x):
     return 25 - 0.000001 * (x ** 3) + 0.002 * (x ** 2)
+    #return x - 0.001 * (x**3) - 2 * (x**2) + 1000 * x 
 
 #----------------------------------------------------------------------------------------------------
 # Metodos para la búsqueda de raices
@@ -29,10 +33,12 @@ def metodoDeBiseccion(funcion, semilla_1, semilla_2, tolerancia, maxIteraciones)
     p_0 = semilla_1
     p_1 = semilla_2
     p_2 = (p_0 + p_1) / 2
+    p_comparacion = p_1
     iteraciones.append(p_2)
     
     i = 1
-    while abs(p_2 - p_1) > tolerancia and i < maxIteraciones:
+    while abs(p_2 - p_comparacion) > tolerancia and i < maxIteraciones:
+        p_comparacion = p_2
         if funcion(p_0) * funcion(p_2) > 0:
             p_0 = p_2
         else:
@@ -69,7 +75,7 @@ def metodoDeNewtonRaphson(funcion, funcionDerivada, semilla, tolerancia, maxIter
     iteraciones.append(p_1)
     i = 0
 
-    while abs(p_1 - p_0) > tolerancia and i < maxIteraciones:
+    while abs(p_1 - p_0) > tolerancia and (not m.isclose(funcionDerivada(p_1), 0)) and i < maxIteraciones:
         p_0 = p_1
         p_1 = p_0 - funcion(p_0)/funcionDerivada(p_0)
         iteraciones.append(p_1)
@@ -117,7 +123,7 @@ def metodoDeLaSecante(funcion, semilla_1, semilla_2, tolerancia, maxIteraciones)
 
 def calcularOrdenDeConvergencia(iteraciones):
     ordenDeConvergencia = []
-    tolerancia = 10**-16
+    tolerancia = 10**-10
     alfa = 0
     for indice in range(len(iteraciones)):
         if indice < 3:
@@ -141,7 +147,7 @@ def calcularOrdenDeConvergencia(iteraciones):
 
 def calcularConstanteAsintotica(iteraciones, alfa):
     constantesAsintoticas = []
-    tolerancia = 10**-12
+    tolerancia = 10**-10
     constante = 0
     for indice in range(len(iteraciones)):
         if indice < 2:
@@ -159,26 +165,59 @@ def calcularConstanteAsintotica(iteraciones, alfa):
 #-------------------------------------------------------------------------------------------
 # Función para imprimir los resultados
 
+def imprimirFuncion(desde, hasta, funcion):
+
+    puntos = np.linspace(desde, hasta, 250)
+    y = funcion(puntos)
+    plt.plot(puntos, y, 'b', lw=1)
+    plt.title('Funcion para hallar la cantidad a producir')
+    plt.grid(True)
+    plt.xlabel('Kg producto')
+    plt.ylabel('Valor de la función')
+    plt.axhline(y=0, color='k')
+    plt.axvline(x=0, color='k')
+    plt.axvline(x=827, color='y')
+    plt.show()
+
+def imprimirIteraciones(nombreMetodo, tolerancia, ordenDeConvergencia):
+    plt.plot(range(1, len(ordenDeConvergencia) + 1), ordenDeConvergencia)
+    plt.grid(True)
+    plt.title("Iteraciones " + nombreMetodo + " con tolerancia " + str(tolerancia))
+    plt.xlabel('Iteración')
+    plt.ylabel('Aproximación raíz')
+    plt.show()
+
 def imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia):
-    plt.xscale("log")
     plt.plot(range(1, len(ordenDeConvergencia) + 1), ordenDeConvergencia)
     plt.grid(True)
     plt.title("Orden de Convergencia " + nombreMetodo + " con tolerancia " + str(tolerancia))
     plt.xlabel('Iteración')
     plt.ylabel('Orden de Convergencia')
-    plt.ylim(0, 3)
+    #plt.ylim(0, 3)
     plt.show()
 
 def imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica):
-    plt.xscale("log")
-    plt.plot(constanteAsintotica)
+    plt.plot(range(1, len(constanteAsintotica) + 1), constanteAsintotica)
     plt.grid(True)
     plt.title("Constante Asintótica " + nombreMetodo + " con tolerancia " + str(tolerancia))
     plt.xlabel('Iteración')
     plt.ylabel('Constante Asintótica')
-    plt.ylim(0, 2)
+    #plt.ylim(0, 2)
     plt.show()
 
+def mostrarComparacionConvergencia(convergenciaBiseccion, convergenciaPuntoFijo, convergenciaNewtonRaphson, convergenciaNewtonRaphsonModificado, convergenciaSecante, tolerancia):
+    plt.plot(range(1, len(convergenciaBiseccion) + 1), convergenciaBiseccion, label='Bisección', color='b')
+    plt.plot(range(1, len(convergenciaPuntoFijo) + 1), convergenciaPuntoFijo, label='Punto fijo', color='y')
+    plt.plot(range(1, len(convergenciaNewtonRaphson) + 1), convergenciaNewtonRaphson, label='Newton Raphson', color='g')
+    plt.plot(range(1, len(convergenciaNewtonRaphsonModificado) + 1), convergenciaNewtonRaphsonModificado, label='Newton Raphson Modificado', color='m')
+    plt.plot(range(1, len(convergenciaSecante) + 1), convergenciaSecante, label='Secante', color='r')
+    plt.grid(True)
+    plt.ylim(0, 3)
+    plt.title('Comparación órdenes de convergencia de los distintos métodos iterativos con tolerancia' + str(tolerancia))
+    plt.xlabel('Iteración')
+    plt.ylabel('Orden de convergencia')
+    plt.legend()
+    plt.show()
 
 def mostrarIteraciones(nombreMetodo, iteraciones, ordenDeConvergencia, constanteAsintotica, tolerancia):
     datos = []
@@ -213,14 +252,14 @@ def main():
     tolerancia = [1e-5, 1e-13]
     maxIteraciones = 100
 
+    #imprimirFuncion(0, 1400, funcionProduccion)
+
     for t in tolerancia:
-        
-        iteracionesBiseccion = metodoDeBiseccion(funcionProduccion, 827, 1800, t, maxIteraciones)
+        iteracionesBiseccion = metodoDeBiseccion(funcionProduccion, 1000, 1200, t, maxIteraciones)
         convergenciaBiseccion = calcularOrdenDeConvergencia(iteracionesBiseccion)
         constanteAsintoticaBiseccion = calcularConstanteAsintotica(iteracionesBiseccion, convergenciaBiseccion[-1])
 
         mostrarIteraciones("Método Bisección", iteracionesBiseccion, convergenciaBiseccion, constanteAsintoticaBiseccion, t)
-
 
         iteracionesPuntoFijo = metodoDePuntoFijo(funcionProduccionPuntoFijo, 1000, t, maxIteraciones)
         convergenciaPuntoFijo = calcularOrdenDeConvergencia(iteracionesPuntoFijo)
@@ -228,27 +267,24 @@ def main():
 
         mostrarIteraciones("Método Punto Fijo", iteracionesPuntoFijo, convergenciaPuntoFijo, constanteAsintoticaPuntoFijo, t)
 
-
         iteracionesNewtonRaphson = metodoDeNewtonRaphson(funcionProduccion, funcionProduccionDerivada, 1100, t, maxIteraciones)
         convergenciaNewtonRaphson = calcularOrdenDeConvergencia(iteracionesNewtonRaphson)
         constanteAsintoticaNewtonRaphson = calcularConstanteAsintotica(iteracionesNewtonRaphson, convergenciaNewtonRaphson[-1])
         
         mostrarIteraciones("Método Newton-Rapshon", iteracionesNewtonRaphson, convergenciaNewtonRaphson, constanteAsintoticaNewtonRaphson, t)
 
-
         iteracionesNewtonRaphsonModificado = metodoDeNewtonRaphsonModificado(funcionProduccion, funcionProduccionDerivada, funcionProduccionDerivadaSegunda, 1050, t, maxIteraciones)
         convergenciaNewtonRaphsonModificado = calcularOrdenDeConvergencia(iteracionesNewtonRaphsonModificado)
-        constanteAsintoticaNewtonRaphsonModificado = calcularConstanteAsintotica(iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado
-        [-1])
+        constanteAsintoticaNewtonRaphsonModificado = calcularConstanteAsintotica(iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado[-1])
 
         mostrarIteraciones("Método Newton-Raphson Modificado", iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado, constanteAsintoticaNewtonRaphsonModificado, t)
 
-
-        iteracionesSecante = metodoDeLaSecante(funcionProduccion, 1000, 1800, t, maxIteraciones)
+        iteracionesSecante = metodoDeLaSecante(funcionProduccion, 1000, 1200, t, maxIteraciones)
         convergenciaSecante = calcularOrdenDeConvergencia(iteracionesSecante)
         constanteAsintoticaSecante = calcularConstanteAsintotica(iteracionesSecante, convergenciaSecante[-1])
 
         mostrarIteraciones("Método de la Secante", iteracionesSecante, convergenciaSecante, constanteAsintoticaSecante, t)
+        #imprimirIteraciones("Método de la Secante", t, iteracionesSecante)
 
-
+        mostrarComparacionConvergencia(convergenciaBiseccion, convergenciaPuntoFijo, convergenciaNewtonRaphson, convergenciaNewtonRaphsonModificado, convergenciaSecante)
 main()
