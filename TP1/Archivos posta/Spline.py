@@ -1,7 +1,10 @@
-import numpy
 import numpy as np
 import matplotlib.pyplot as plt
+import tabulate as tab
+import Descomposicion_LU as lu
 import math
+
+# Calculo de matrices
 
 def calcularMatrizA(h, cantidadDeNodos):
     A = [[0 for _ in range(cantidadDeNodos)] for _ in range(cantidadDeNodos)]
@@ -29,6 +32,8 @@ def calcularMatrizB(a, h, cantidadDeNodos, pendienteInicial, pendienteFinal):
 
     return B
 
+# Calculo de coeficientes b y d
+
 def calcularCoeficientesRestantes(a, h, c, cantidadDeNodos):
     b = []
     for j in range(cantidadDeNodos - 1):
@@ -39,6 +44,8 @@ def calcularCoeficientesRestantes(a, h, c, cantidadDeNodos):
         d.append(1/(3 * h[j]) * (c[j+1] - c[j]))
 
     return b, d
+
+# Main protocol
 
 def spline(x, a, pendienteInicial, pendienteFinal):
     cantidadDeNodos = len(x)
@@ -52,14 +59,17 @@ def spline(x, a, pendienteInicial, pendienteFinal):
         print(A[x])
 
     print("\n" + str(B))
+    print("\n")
 
-    # Resuelvo ecuación // Tambien se puede hacer con LU
-    c = np.linalg.solve(A, B)
+    # Resuelvo ecuación
+    c = lu.solve(A, B)
 
     # Calculo coeficientes b, d
     b, d = calcularCoeficientesRestantes(a, h, c, cantidadDeNodos)
 
     return a, b, c, d
+
+# Calculos para graficar Spline.
 
 def obtenerValorSpline(a, b, c, d, x, x0):
     return a + b*(x-x0) + c*((x-x0)**2) + d*((x-x0)**3)
@@ -67,13 +77,25 @@ def obtenerValorSpline(a, b, c, d, x, x0):
 def obtenerPuntosCurvaSpline(a, b, c, d, x):
     resultado = []
     puntosEvaluados = []
-    for i in range(len(x) - 1):
+    for i in range(len(x)-1):
         puntosAEvaluar = np.linspace(x[i], x[i+1], 20)
         resultadoActual = obtenerValorSpline(a[i], b[i], c[i], d[i], puntosAEvaluar, x[i])
-        resultado = numpy.append(resultado, resultadoActual)
-        puntosEvaluados = numpy.append(puntosEvaluados, puntosAEvaluar)
+        resultado = np.append(resultado, resultadoActual)
+        puntosEvaluados = np.append(puntosEvaluados, puntosAEvaluar)
 
     return puntosEvaluados, resultado
+
+# Imprimir tabla de coeficientes de una Spline
+
+def mostrarTablaDeCoeficientes(a, b, c, d, cantidadDeNodos):
+    datos = []
+    titulos = ['S', 'a', 'b', 'c', 'd ']
+
+    for i in range(cantidadDeNodos-1):
+        datos.append(('S_'+str(i), a[i], b[i], c[i], d[i]))
+
+    print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
+
 
 
 def main():
@@ -88,10 +110,24 @@ def main():
 
     print("Curva 1")
     a1, b1, c1, d1 = spline(x1, y1, 1, -2/3)
+    mostrarTablaDeCoeficientes(a1, b1, c1, d1, len(x1))
+    print("\n")
+    print("="*100)
+    print("\n")
+
     print("Curva 2")
     a2, b2, c2, d2 = spline(x2, y2, 3, -4)
+    mostrarTablaDeCoeficientes(a2, b2, c2, d2, len(x2))
+    print("\n")
+    print("="*100)
+    print("\n")
+    
     print("Curva 3")
     a3, b3, c3, d3 = spline(x3, y3, 1/3, -3/2)
+    mostrarTablaDeCoeficientes(a3, b3, c3, d3, len(x3))
+    print("\n")
+    print("="*100)
+    print("\n")
 
     puntosCurva1, resultado1 = obtenerPuntosCurvaSpline(a1, b1, c1, d1, x1)
     puntosCurva2, resultado2 = obtenerPuntosCurvaSpline(a2, b2, c2, d2, x2)
@@ -108,7 +144,7 @@ def main():
     plt.show()
 
 
-#main()
+main()
 
 def extra():
     euler = math.e
@@ -126,4 +162,4 @@ def extra():
 
     plt.show()
 
-extra()
+#extra()

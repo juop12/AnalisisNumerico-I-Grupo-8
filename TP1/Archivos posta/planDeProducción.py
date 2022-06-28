@@ -203,8 +203,8 @@ def mostrarIteraciones(nombreMetodo, iteraciones, ordenDeConvergencia, constante
     print("\n\n" + nombreMetodo)
     print("Tolerancia: ", tolerancia)
     print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
-    imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
-    imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
+    #imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
+    #imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
 
 #-------------------------------------------------------------------------------------------
 # Main
