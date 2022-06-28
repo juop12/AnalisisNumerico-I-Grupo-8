@@ -94,7 +94,10 @@ def mostrarTablaDeCoeficientes(a, b, c, d, cantidadDeNodos):
     for i in range(cantidadDeNodos-1):
         datos.append(('S_'+str(i), a[i], b[i], c[i], d[i]))
 
-    print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
+    #ascii
+    #print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
+    #fancy
+    print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt='fancy_grid'))
 
 
 
