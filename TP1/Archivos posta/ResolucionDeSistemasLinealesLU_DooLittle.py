@@ -1,23 +1,24 @@
-import numpy as np
+from numpy import zeros
 
-# Resolución de un sistema de ecuaciones lineal con matriz LU.
-
-#https://www.youtube.com/watch?v=34k1y31EZiY
-def calcular_y(lower, b):
+# Resuelve el sistema Ly=B para matriz L del metodo DooLittle.
+# Devuelve el vector y.
+def calcular_y(lower, B):
     cantidadDeCoeficientes = len(lower)
 
-    y = np.zeros(cantidadDeCoeficientes)
+    y = zeros(cantidadDeCoeficientes)
     for i in range(cantidadDeCoeficientes):
-        y[i] = b[i]
+        y[i] = B[i]
         for j in range(i):
             y[i] -= lower[i][j] * y[j]
 
     return y
 
+# Resuelve el sistema Ux=y para matriz U del metodo DooLittle.
+# Devuelve el vector x.
 def calcular_x(upper, y):
     cantidadDeCoeficientes = len(upper)
 
-    x = np.zeros(cantidadDeCoeficientes)
+    x = zeros(cantidadDeCoeficientes)
     for i in range(cantidadDeCoeficientes-1, -1, -1):
         x[i] = y[i]
         for j in range(cantidadDeCoeficientes-1, i, -1):
@@ -27,14 +28,15 @@ def calcular_x(upper, y):
 
     return x
 
-# Descomposicion LU
-
-#https://www.youtube.com/watch?v=FpVeXhAQg9w
+# Descompone una matriz en dos matrices (LU) con la 
+# forma del metodo DooLittle.
+# Devuelve las matrices L y U.
+# Fuente: https://www.youtube.com/watch?v=FpVeXhAQg9w.
 def factorizacionLU_DooLittle(mat):
     cantidadDeCoeficientes = len(mat)
 
-    lower = np.zeros([cantidadDeCoeficientes, cantidadDeCoeficientes])
-    upper = np.zeros([cantidadDeCoeficientes, cantidadDeCoeficientes])
+    lower = zeros([cantidadDeCoeficientes, cantidadDeCoeficientes])
+    upper = zeros([cantidadDeCoeficientes, cantidadDeCoeficientes])
     
     for i in range(0, cantidadDeCoeficientes):
         upper[0][i] = mat[0][i]
@@ -50,19 +52,35 @@ def factorizacionLU_DooLittle(mat):
 
     return lower, upper
 
-# Main Protocol
 
-# Ax=B, separo en:
-#   - Ly=x
-#   - Ux=B
-#   devuelvo x.
-def solve(A,B):
-    lower, upper = factorizacionLU_DooLittle(A)
+# Main Protocol
+#======================================================================
+
+# Resuelve un sistema LU.
+def resolverSistemaLU(lower, upper, B):
     y = calcular_y(lower, B)
     return calcular_x(upper, y)
 
+# Ax=B, separo en LUx=B:
+#   - Ly=B
+#   - Ux=y
+#   resuelvo los sistemas y devuelvo x.
+def resolverSistemaLineal(A,B):
+    lower, upper = factorizacionLU_DooLittle(A)
+    return resolverSistemaLU(lower, upper, B)
+    
+
+
+
+
+
+
+
+
 # Pruebas
 #======================================================================
+import numpy as np
+
 
 # Imprimir valores
 
@@ -107,9 +125,9 @@ def pruebas():
     x = calcular_x(upper, y)
     imprimirResolucionDeSistema(x)
 
-    #y = np.linalg.solve(lower, b)
-    #x = np.linalg.solve(upper, y)
-    #print(x)
+    y = np.linalg.solve(lower, b)
+    x = np.linalg.solve(upper, y)
+    print(x)
 
 
 
