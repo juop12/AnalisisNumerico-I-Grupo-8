@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import tabulate as tab
 import numpy as np
 
+
 # Graficos
 #======================================================================
 
@@ -17,7 +18,7 @@ def imprimirMatricesAyB(A, B):
 # Imprime tabla de coeficientes de cada subfuncion de una Spline.
 def mostrarTablaDeCoeficientes(a, b, c, d, cantidadDeNodos):
     datos = []
-    titulos = ['S', 'a', 'b', 'c', 'd ']
+    titulos = ['S_j', 'a', 'b', 'c', 'd ']
 
     for i in range(cantidadDeNodos-1):
         datos.append(('S_'+str(i), a[i], b[i], c[i], d[i]))
@@ -111,7 +112,7 @@ def calcularCoeficientesDeSpline(x, a, pendienteInicial, pendienteFinal):
     B = calcularMatrizB(a, h, cantidadDeNodos, pendienteInicial, pendienteFinal)
 
     # Grafico de A y B.
-    imprimirMatricesAyB(A, B)
+    #imprimirMatricesAyB(A, B)
 
     # Resuelvo ecuacion
     c = resolverSistemaLineal(A, B)
@@ -137,7 +138,7 @@ def spline(NombreDeCurva, x, y, pendienteInicial, pendienteFinal):
 # Main
 #======================================================================
 
-def main_TPEjercicioDos():
+def main():
 
     # Tabla del enunciado hardcodeada.
     x1 = [  1,   2,   5,   6,   7,   8,  10,  13,  17]
@@ -152,35 +153,9 @@ def main_TPEjercicioDos():
     spline("Curva 1", x1, y1, 1, -2/3)
     spline("Curva 2", x2, y2, 3, -4)
     spline("Curva 3", x3, y3, 1/3, -3/2)
+    plt.vlines([1, 17, 27.7, 30], 1, 9, color="black", linestyle="dashed")
     plt.grid(True)
     plt.show()
 
 
-main_TPEjercicioDos()
-
-
-
-
-
-# Pruebas
-#======================================================================
-
-import math
-
-def pruebas():
-    euler = math.e
-    x = [0, 1, 2, 3]
-    y = [1, euler, euler**2, euler**3]
-
-    print("Curva de prueba")
-    a1, b1, c1, d1 = spline(x, y, 1, euler**3)
-
-    puntosCurva, resultado = obtenerPuntosCurvaSpline(a1, b1, c1, d1, x)
-
-    plt.plot(puntosCurva, resultado, 'k', lw=1)
-    plt.grid(True)
-    plt.scatter(x, y, color='red')
-
-    plt.show()
-
-#pruebas()
+main()
