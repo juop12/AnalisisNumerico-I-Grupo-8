@@ -7,9 +7,6 @@ import tabulate as tab
 #----------------------------------------------------------------------------------------------------
 # Funciones de las que haremos uso
 
-def funcionOriginal(x):
-    return 0.001 * (x**3) - 2 * (x**2) + 1000 * x 
-
 def funcionProduccion(x): 
     return 0.001 * (x**3) - 2 * (x**2) + 1000 * x - 25000  
 
@@ -21,7 +18,6 @@ def funcionProduccionDerivadaSegunda(x):
 
 def funcionProduccionPuntoFijo(x):
     return 25 - 0.000001 * (x ** 3) + 0.002 * (x ** 2)
-    #return x - 0.001 * (x**3) - 2 * (x**2) + 1000 * x 
 
 #----------------------------------------------------------------------------------------------------
 # Metodos para la búsqueda de raices
@@ -122,6 +118,8 @@ def metodoDeLaSecante(funcion, semilla_1, semilla_2, tolerancia, maxIteraciones)
 # Funciones de convergencia y constante asintótica
 
 def calcularOrdenDeConvergencia(iteraciones):
+    """ Recibe las iteraciones de un método de busqueda de raíces 
+        y devuelve una lista con los órdenes de convergencia"""
     ordenDeConvergencia = []
     tolerancia = 10**-10
     alfa = 0
@@ -145,7 +143,10 @@ def calcularOrdenDeConvergencia(iteraciones):
                 
     return ordenDeConvergencia
 
-def calcularConstanteAsintotica(iteraciones, alfa):
+def calcularConstanteAsintotica(iteraciones, convergencia):
+    """ Recibe las iteraciones de un método de busqueda de raíces 
+        y su convergencia. Devuelve una lista con las constantes 
+        asintóticas."""
     constantesAsintoticas = []
     tolerancia = 10**-10
     constante = 0
@@ -156,56 +157,42 @@ def calcularConstanteAsintotica(iteraciones, alfa):
         else:
             errorParActual   = abs(iteraciones[indice]     - iteraciones[indice - 1])
             errorParAnterior = abs(iteraciones[indice - 1] - iteraciones[indice - 2])
-            if errorParActual > tolerancia and (errorParAnterior ** alfa) > tolerancia:
-                constante = errorParActual / (errorParAnterior**alfa)
+            if errorParActual > tolerancia and (errorParAnterior ** convergencia) > tolerancia:
+                constante = errorParActual / (errorParAnterior**convergencia)
             constantesAsintoticas.append(constante)
 
     return constantesAsintoticas
 
+def obtenerListaErrorIteraciones(iteraciones):
+    """ Recibe las iteraciones de un método de busqueda de raíces 
+        y devuelve una lista con los errores de cada iteración."""
+    errores = []
+    errores.append(0)
+    for i in range(1, len(iteraciones)):
+        errores.append(abs(iteraciones[i] - iteraciones[i - 1]))
+    return errores
+
 #-------------------------------------------------------------------------------------------
 # Función para imprimir los resultados
 
-def imprimirFuncion(desde, hasta, funcion):
-
-    puntos = np.linspace(desde, hasta, 250)
-    y = funcion(puntos)
-    plt.plot(puntos, y, 'b', lw=1)
-    plt.title('Funcion para hallar la cantidad a producir')
+def mostrarComparacionIteraciones(iteracionesBiseccion, iteracionesPuntoFijo, iteracionesNewtonRaphson, iteracionesNewtonRaphsonModificado, iteracionesSecante, tolerancia):
+    """ Imprime un gráfico con la evolución de la posible raíz a través de las 
+        iteraciones de los diferentes métodos de busqueda de raíces"""
+    plt.plot(range(1, len(iteracionesBiseccion) + 1), iteracionesBiseccion, label='Bisección', color='b')
+    plt.plot(range(1, len(iteracionesPuntoFijo) + 1), iteracionesPuntoFijo, label='Punto fijo', color='y')
+    plt.plot(range(1, len(iteracionesNewtonRaphson) + 1), iteracionesNewtonRaphson, label='Newton Raphson', color='g')
+    plt.plot(range(1, len(iteracionesNewtonRaphsonModificado) + 1), iteracionesNewtonRaphsonModificado, label='Newton Raphson Modificado', color='m')
+    plt.plot(range(1, len(iteracionesSecante) + 1), iteracionesSecante, label='Secante', color='r')
     plt.grid(True)
-    plt.xlabel('Kg producto')
-    plt.ylabel('Valor de la función')
-    plt.axhline(y=0, color='k')
-    plt.axvline(x=0, color='k')
-    plt.axvline(x=827, color='y')
-    plt.show()
-
-def imprimirIteraciones(nombreMetodo, tolerancia, ordenDeConvergencia):
-    plt.plot(range(1, len(ordenDeConvergencia) + 1), ordenDeConvergencia)
-    plt.grid(True)
-    plt.title("Iteraciones " + nombreMetodo + " con tolerancia " + str(tolerancia))
+    plt.title('Comparación iteraciones de los distintos métodos iterativos con tolerancia' + str(tolerancia))
     plt.xlabel('Iteración')
     plt.ylabel('Aproximación raíz')
-    plt.show()
-
-def imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia):
-    plt.plot(range(1, len(ordenDeConvergencia) + 1), ordenDeConvergencia)
-    plt.grid(True)
-    plt.title("Orden de Convergencia " + nombreMetodo + " con tolerancia " + str(tolerancia))
-    plt.xlabel('Iteración')
-    plt.ylabel('Orden de Convergencia')
-    #plt.ylim(0, 3)
-    plt.show()
-
-def imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica):
-    plt.plot(range(1, len(constanteAsintotica) + 1), constanteAsintotica)
-    plt.grid(True)
-    plt.title("Constante Asintótica " + nombreMetodo + " con tolerancia " + str(tolerancia))
-    plt.xlabel('Iteración')
-    plt.ylabel('Constante Asintótica')
-    #plt.ylim(0, 2)
+    plt.legend()
     plt.show()
 
 def mostrarComparacionConvergencia(convergenciaBiseccion, convergenciaPuntoFijo, convergenciaNewtonRaphson, convergenciaNewtonRaphsonModificado, convergenciaSecante, tolerancia):
+    """ Imprime un gráfico con la evolución de la convergencia a través de las 
+        iteraciones de los diferentes métodos de busqueda de raíces"""
     plt.plot(range(1, len(convergenciaBiseccion) + 1), convergenciaBiseccion, label='Bisección', color='b')
     plt.plot(range(1, len(convergenciaPuntoFijo) + 1), convergenciaPuntoFijo, label='Punto fijo', color='y')
     plt.plot(range(1, len(convergenciaNewtonRaphson) + 1), convergenciaNewtonRaphson, label='Newton Raphson', color='g')
@@ -219,7 +206,40 @@ def mostrarComparacionConvergencia(convergenciaBiseccion, convergenciaPuntoFijo,
     plt.legend()
     plt.show()
 
+def mostrarComparacionConstanteAsintotica(constanteAsintoticaBiseccion, constanteAsintoticaPuntoFijo, constanteAsintoticaNewtonRaphson, constanteAsintoticaNewtonRaphsonModificado, constanteAsintoticaSecante, tolerancia):
+    """ Imprime un gráfico con la evolución de la constante asintótica a través de las 
+        iteraciones de los diferentes métodos de busqueda de raíces"""
+    plt.plot(range(1, len(constanteAsintoticaBiseccion) + 1), constanteAsintoticaBiseccion, label='Bisección', color='b')
+    plt.plot(range(1, len(constanteAsintoticaPuntoFijo) + 1), constanteAsintoticaPuntoFijo, label='Punto fijo', color='y')
+    plt.plot(range(1, len(constanteAsintoticaNewtonRaphson) + 1), constanteAsintoticaNewtonRaphson, label='Newton Raphson', color='g')
+    plt.plot(range(1, len(constanteAsintoticaNewtonRaphsonModificado) + 1), constanteAsintoticaNewtonRaphsonModificado, label='Newton Raphson Modificado', color='m')
+    plt.plot(range(1, len(constanteAsintoticaSecante) + 1), constanteAsintoticaSecante, label='Secante', color='r')
+    plt.grid(True)
+    plt.ylim(0, 1)
+    plt.title('Comparación constantes asintóticas de los distintos métodos iterativos con tolerancia' + str(tolerancia))
+    plt.xlabel('Iteración')
+    plt.ylabel('Constante Asintótica')
+    plt.legend()
+    plt.show()
+
+def mostrarComparacionErrores(erroresBiseccion, erroresPuntoFijo, erroresNewtonRaphson, erroresNewtonRaphsonModificado, erroresSecante, tolerancia):
+    """ Imprime un gráfico con la evolución del error a través de las 
+        iteraciones de los diferentes métodos de busqueda de raíces"""
+    plt.plot(range(1, len(erroresBiseccion) + 1), erroresBiseccion, label='Bisección', color='b')
+    plt.plot(range(1, len(erroresPuntoFijo) + 1), erroresPuntoFijo, label='Punto fijo', color='y')
+    plt.plot(range(1, len(erroresNewtonRaphson) + 1), erroresNewtonRaphson, label='Newton Raphson', color='g')
+    plt.plot(range(1, len(erroresNewtonRaphsonModificado) + 1), erroresNewtonRaphsonModificado, label='Newton Raphson Modificado', color='m')
+    plt.plot(range(1, len(erroresSecante) + 1), erroresSecante, label='Secante', color='r')
+    plt.grid(True)
+    plt.title('Comparación log del error de cada iteración con tolerancia ' + str(tolerancia))
+    plt.xlabel('Iteración')
+    plt.ylabel('log(error)')
+    plt.legend()
+    plt.show()
+
 def mostrarIteraciones(nombreMetodo, iteraciones, ordenDeConvergencia, constanteAsintotica, tolerancia):
+    """ Imprime una tabla con la evolución de las posibles raíces, la convergencia y la
+        constante asintótica de un método de búsqueda de raíces"""
     datos = []
     cantidadIteraciones = len(iteraciones)
     titulos = ['Iteracion', 'Raiz', 'Convergencia', 'Constante Asintotica']
@@ -242,8 +262,6 @@ def mostrarIteraciones(nombreMetodo, iteraciones, ordenDeConvergencia, constante
     print("\n\n" + nombreMetodo)
     print("Tolerancia: ", tolerancia)
     print(tab.tabulate(datos, headers=titulos, floatfmt=".16f", tablefmt="github"))
-    #imprimirOrdenDeConvergencia(nombreMetodo, tolerancia, ordenDeConvergencia)
-    #imprimirConstanteAsintotica(nombreMetodo, tolerancia, constanteAsintotica)
 
 #-------------------------------------------------------------------------------------------
 # Main
@@ -252,39 +270,45 @@ def main():
     tolerancia = [1e-5, 1e-13]
     maxIteraciones = 100
 
-    #imprimirFuncion(0, 1400, funcionProduccion)
-
     for t in tolerancia:
         iteracionesBiseccion = metodoDeBiseccion(funcionProduccion, 1000, 1200, t, maxIteraciones)
+        erroresBiseccion = obtenerListaErrorIteraciones(iteracionesBiseccion)
         convergenciaBiseccion = calcularOrdenDeConvergencia(iteracionesBiseccion)
         constanteAsintoticaBiseccion = calcularConstanteAsintotica(iteracionesBiseccion, convergenciaBiseccion[-1])
 
         mostrarIteraciones("Método Bisección", iteracionesBiseccion, convergenciaBiseccion, constanteAsintoticaBiseccion, t)
 
-        iteracionesPuntoFijo = metodoDePuntoFijo(funcionProduccionPuntoFijo, 1000, t, maxIteraciones)
+        iteracionesPuntoFijo = metodoDePuntoFijo(funcionProduccionPuntoFijo, 1100, t, maxIteraciones)
+        erroresPuntoFijo = obtenerListaErrorIteraciones(iteracionesPuntoFijo)
         convergenciaPuntoFijo = calcularOrdenDeConvergencia(iteracionesPuntoFijo)
         constanteAsintoticaPuntoFijo = calcularConstanteAsintotica(iteracionesPuntoFijo, convergenciaPuntoFijo[-1])
 
         mostrarIteraciones("Método Punto Fijo", iteracionesPuntoFijo, convergenciaPuntoFijo, constanteAsintoticaPuntoFijo, t)
 
         iteracionesNewtonRaphson = metodoDeNewtonRaphson(funcionProduccion, funcionProduccionDerivada, 1100, t, maxIteraciones)
+        erroresNewtonRaphson = obtenerListaErrorIteraciones(iteracionesNewtonRaphson)
         convergenciaNewtonRaphson = calcularOrdenDeConvergencia(iteracionesNewtonRaphson)
         constanteAsintoticaNewtonRaphson = calcularConstanteAsintotica(iteracionesNewtonRaphson, convergenciaNewtonRaphson[-1])
         
         mostrarIteraciones("Método Newton-Rapshon", iteracionesNewtonRaphson, convergenciaNewtonRaphson, constanteAsintoticaNewtonRaphson, t)
 
         iteracionesNewtonRaphsonModificado = metodoDeNewtonRaphsonModificado(funcionProduccion, funcionProduccionDerivada, funcionProduccionDerivadaSegunda, 1050, t, maxIteraciones)
+        erroresNewtonRaphsonModificado = obtenerListaErrorIteraciones(iteracionesNewtonRaphsonModificado)
         convergenciaNewtonRaphsonModificado = calcularOrdenDeConvergencia(iteracionesNewtonRaphsonModificado)
         constanteAsintoticaNewtonRaphsonModificado = calcularConstanteAsintotica(iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado[-1])
 
         mostrarIteraciones("Método Newton-Raphson Modificado", iteracionesNewtonRaphsonModificado, convergenciaNewtonRaphsonModificado, constanteAsintoticaNewtonRaphsonModificado, t)
 
         iteracionesSecante = metodoDeLaSecante(funcionProduccion, 1000, 1200, t, maxIteraciones)
+        erroresSecante = obtenerListaErrorIteraciones(iteracionesSecante)
         convergenciaSecante = calcularOrdenDeConvergencia(iteracionesSecante)
         constanteAsintoticaSecante = calcularConstanteAsintotica(iteracionesSecante, convergenciaSecante[-1])
 
         mostrarIteraciones("Método de la Secante", iteracionesSecante, convergenciaSecante, constanteAsintoticaSecante, t)
-        #imprimirIteraciones("Método de la Secante", t, iteracionesSecante)
 
-        mostrarComparacionConvergencia(convergenciaBiseccion, convergenciaPuntoFijo, convergenciaNewtonRaphson, convergenciaNewtonRaphsonModificado, convergenciaSecante)
+        mostrarComparacionIteraciones(iteracionesBiseccion, iteracionesPuntoFijo, iteracionesNewtonRaphson, iteracionesNewtonRaphsonModificado, iteracionesSecante, t)
+        mostrarComparacionErrores(erroresBiseccion, erroresPuntoFijo, erroresNewtonRaphson, erroresNewtonRaphsonModificado, erroresSecante, t)
+        mostrarComparacionConvergencia(convergenciaBiseccion, convergenciaPuntoFijo, convergenciaNewtonRaphson, convergenciaNewtonRaphsonModificado, convergenciaSecante, t)
+        mostrarComparacionConstanteAsintotica(constanteAsintoticaBiseccion, constanteAsintoticaPuntoFijo, constanteAsintoticaNewtonRaphson, constanteAsintoticaNewtonRaphsonModificado, constanteAsintoticaSecante, t)
+
 main()
